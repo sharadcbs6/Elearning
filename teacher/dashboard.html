@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard - E-Learning Platform</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="../styles/chat.css">
+    <style>
+        :root {
+            --bg-primary: #1a1a2e;
+            --bg-secondary: #16213e;
+            --color-primary: #4a90e2;
+            --color-success: #4CAF50;
+            --color-warning: #FFC107;
+            --color-danger: #FF5252;
+            --text-primary: #ffffff;
+            --text-secondary: #b4b4b4;
+            --card-bg: rgba(255, 255, 255, 0.1);
+            --card-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary), var(--bg-secondary));
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            border: 1px solid var(--card-border);
+        }
+
+        .nav-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-bar h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+            background: linear-gradient(45deg, var(--color-primary), #67b26f);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .action-btn {
+            padding: 0.8rem 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .action-btn.primary {
+            background: var(--color-primary);
+            border-color: var(--color-primary);
+        }
+
+        .action-btn i {
+            font-size: 1.1rem;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .action-btn.primary:hover {
+            background: #3a80d2;
+            border-color: #3a80d2;
+        }
+
+        .welcome-section {
+            background: linear-gradient(135deg, rgba(74, 144, 226, 0.1), rgba(103, 178, 111, 0.1));
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .welcome-section h3 {
+            font-size: 1.6rem;
+            margin: 0 0 0.5rem 0;
+            color: var(--text-primary);
+        }
+
+        .welcome-section p {
+            color: var(--text-secondary);
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 1.8rem;
+            border-radius: 15px;
+            border: 1px solid var(--card-border);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(45deg, var(--color-primary), #67b26f);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .courses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .course-card {
+            background: var(--bg-secondary);
+            border-radius: 15px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--card-border);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .course-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--color-primary), #6366f1);
+        }
+
+        .course-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .course-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+
+        .course-header h3 {
+            margin: 0;
+            font-size: 1.2rem;
+            color: var(--text-primary);
+            line-height: 1.4;
+            flex: 1;
+            margin-right: 1rem;
+        }
+
+        .course-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .course-actions button {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .edit-btn:hover {
+            color: var(--color-primary);
+            background: rgba(74, 144, 226, 0.1);
+        }
+
+        .delete-btn:hover {
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .course-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            text-align: center;
+        }
+
+        .stat i {
+            font-size: 1.2rem;
+            color: var(--color-primary);
+        }
+
+        .stat span {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .course-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--card-border);
+        }
+
+        .category,
+        .level {
+            font-size: 0.85rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-secondary);
+        }
+
+        .category {
+            color: #6366f1;
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .level {
+            color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .course-description {
+            margin: 1rem 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .error-message {
+            text-align: center;
+            padding: 2rem;
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            background: rgba(255, 82, 82, 0.1);
+            border-radius: 12px;
+            margin: 1rem 0;
+        }
+
+        .no-courses-message {
+            text-align: center;
+            padding: 3rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            margin: 2rem 0;
+        }
+
+        .no-courses-message i {
+            font-size: 3rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .no-courses-message p {
+            color: var(--text-secondary);
+            margin: 1rem 0;
+        }
+
+        .create-first-course-btn {
+            background: var(--color-primary);
+            color: var(--text-primary);
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .create-first-course-btn:hover {
+            background: #3a80d2;
+            transform: translateY(-2px);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 2rem;
+            height: 2rem;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--text-primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+
+            .nav-bar {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .nav-actions {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .action-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .courses-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .welcome-section {
+                padding: 1.5rem;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!---chat interface-->
+    <div class="chat-widget">
+        <button class="chat-icon-button" id="chat-icon-button">
+            <i class="fas fa-comment"></i>
+        </button>
+
+        <div class="chat-container">
+            <div class="chat-header">
+                <div class="header-blur"></div>
+                <div class="header-glow"></div>
+                <div class="header-content">
+                    <div class="header-title">
+                        <h1 style="font-size: 1.5rem;">AI Learning Assistant</h1>
+                        <p style="font-size: 1rem;">Your personal AI tutor</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="theme-toggle" title="Toggle dark mode">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="particles" id="particles"></div>
+            <div class="chat-messages" id="chat-messages">
+                <div class="message bot-message show">
+                    <div class="message-content">
+                        <h3>👋 Welcome!</h3>
+                        <p>I'm your AI learning assistant. Ask me anything!</p>
+                    </div>
+                    <div class="message-meta">
+                        <div class="message-timestamp">
+                            <i class="fas fa-clock"></i>
+                            <span>Just now</span>
+                        </div>
+                        <div class="message-actions">
+                            <button class="action-btn" title="Copy message">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                            <button class="action-btn" title="Read aloud">
+                                <i class="fas fa-volume-up"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="typing-indicator" id="typing-indicator" style="display: none;">
+                <div class="typing-dots">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+                <span>AI is thinking...</span>
+            </div>
+            <div class="input-container">
+                <button class="voice-input" id="voice-input" title="Voice input">
+                    <i class="fas fa-microphone"></i>
+                </button>
+                <input type="text" id="message-input" placeholder="Type your message here..." autocomplete="off">
+                <button id="send-button">
+                    <i class="fas fa-paper-plane"></i>
+                    <span>Send</span>
+                </button>
+            </div>
+        </div>
+    </div>
+   <!--Dashboard-->
+    <div class="dashboard-container">
+        <div class="nav-bar">
+            <h2><i class="fas fa-chalkboard-teacher"></i> Teacher Dashboard</h2>
+            <div class="nav-actions">
+                <button class="action-btn primary" id="createCourseBtn">
+                    <i class="fas fa-plus"></i>
+                    Create Course
+                </button>
+                <button class="action-btn" id="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </button>
+            </div>
+        </div>
+
+        <div class="welcome-section">
+            <h3>Welcome back, <span id="teacher-name">Professor</span>! 👋</h3>
+            <p>Manage your courses and track student progress</p>
+        </div>
+
+        <div id="courses-container"></div>
+        
+        <script>
+        document.getElementById('assessment-manager-btn').onclick = function() {
+            window.location.href = '/teacher/assessment-manager.html';
+        };
+        </script>
+    </div>
+
+    <!-- Student Assignment & Completion Reports Section -->
+    <section id="reportsSection" class="dashboard-section" style="margin-top:2.5em;display:none;">
+        <h2 style="font-size:1.3em;margin-bottom:1em;">Student Assignment & Completion Reports</h2>
+        <div style="overflow-x:auto;">
+            <table style="width:100%;border-collapse:collapse;background:rgba(255,255,255,0.02);">
+                <thead>
+                    <tr style="background:rgba(255,255,255,0.08);">
+                        <th>Student</th>
+                        <th>Course</th>
+                        <th>Assessment</th>
+                        <th>Score</th>
+                        <th>Percentage</th>
+                        <th>Modules Done</th>
+                        <th>Modules Left</th>
+                        <th>Submitted At</th>
+                    </tr>
+                </thead>
+                <tbody id="reportsTableBody">
+                    <tr><td colspan="7">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Create Course Modal -->
+    <div id="createCourseModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-plus-circle"></i> <span id="modalTitle">Create New Course</span></h3>
+                <span class="close">&times;</span>
+            </div>
+            <div id="courseFormError" class="error-message" style="display: none;"></div>
+            <form id="courseForm" class="course-form">
+                <input type="hidden" id="courseId">
+                <div class="form-group">
+                    <label for="courseTitle">Course Title</label>
+                    <input type="text" id="courseTitle" name="courseTitle" required placeholder="Enter course title">
+                </div>
+                
+                <div class="form-group">
+                    <label for="courseDescription">Description</label>
+                    <textarea id="courseDescription" name="courseDescription" required placeholder="Enter course description"></textarea>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="courseCategory">Category</label>
+                        <select id="courseCategory" name="courseCategory" required>
+                            <option value="">Select category</option>
+                            <option value="programming">Programming</option>
+                            <option value="design">Design</option>
+                            <option value="business">Business</option>
+                            <option value="marketing">Marketing</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="courseLevel">Level</label>
+                        <select id="courseLevel" name="courseLevel" required>
+                            <option value="">Select level</option>
+                            <option value="beginner">Beginner</option>
+                            <option value="intermediate">Intermediate</option>
+                            <option value="advanced">Advanced</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="courseDuration">Duration (hours)</label>
+                    <input type="number" id="courseDuration" name="courseDuration" required min="1" placeholder="Enter course duration in hours">
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" class="cancel-btn" onclick="document.getElementById('createCourseModal').style.display='none'">Cancel</button>
+                    <button type="submit" class="submit-btn">Save Course</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Course Feedback Modal -->
+    <div id="courseFeedbackModal" class="modal" style="display:none;z-index:1000;">
+        <div class="modal-content" style="max-width:700px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-comments"></i> Course Feedback</h3>
+                <span class="close" id="closeCourseFeedbackModal">&times;</span>
+            </div>
+            <div id="courseFeedbackModalBody">
+                <div style="text-align:center;padding:2em;">Loading...</div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            margin: 5% auto;
+            padding: 2rem;
+            border: 1px solid var(--card-border);
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            position: relative;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .close {
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: var(--text-primary);
+        }
+
+        .course-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group label {
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 0.8rem;
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .submit-btn,
+        .cancel-btn {
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-btn {
+            background: var(--color-primary);
+            color: var(--text-primary);
+            border: none;
+        }
+
+        .submit-btn:hover {
+            background: #3a80d2;
+        }
+
+        .cancel-btn {
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px solid var(--card-border);
+        }
+
+        .cancel-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .error-message {
+            background: rgba(255, 82, 82, 0.1);
+            color: #ff5252;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+    </style>
+
+    <script type="module">
+        import { auth } from '../auth/auth.js';
+
+        // Check if user is logged in and is a teacher
+        const user = auth.getCurrentUser();
+        if (!user || user.role !== 'teacher') {
+            window.location.href = '/auth/login.html';
+        }
+
+        document.getElementById('teacher-name').textContent = user.profile?.name || 'Teacher';
+
+        // Logout functionality
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            auth.logout();
+        });
+
+        // Fetch teacher's courses from the backend
+        async function fetchTeacherCourses() {
+            const coursesContainer = document.getElementById('courses-container');
+            coursesContainer.innerHTML = '<div class="loading-spinner"></div>';
+
+            try {
+                const response = await fetch('/api/courses/teaching', {
+                    headers: {
+                        'Authorization': `Bearer ${auth.getToken()}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch courses');
+                }
+
+                const courses = await response.json();
+                renderCourses(courses);
+            } catch (error) {
+                console.error('Error fetching courses:', error);
+                coursesContainer.innerHTML = `
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <p>Unable to load courses. Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Render courses
+        function renderCourses(courses) {
+            const coursesContainer = document.getElementById('courses-container');
+            coursesContainer.innerHTML = ''; // Clear existing content
+
+            if (courses.length === 0) {
+                coursesContainer.innerHTML = `
+                    <div class="no-courses-message">
+                        <i class="fas fa-books"></i>
+                        <h3>No Courses Created Yet</h3>
+                        <p>Start creating your first course and share your knowledge with students!</p>
+                        <button onclick="document.getElementById('createCourseModal').style.display='block'" class="create-first-course-btn">
+                            <i class="fas fa-plus"></i>
+                            Create Your First Course
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            const coursesGrid = document.createElement('div');
+            coursesGrid.className = 'courses-grid';
+
+            courses.forEach(course => {
+                const courseElement = document.createElement('div');
+                courseElement.className = 'course-card';
+                courseElement.innerHTML = `
+                    <div class="course-header">
+                        <h3>${course.title}</h3>
+                        <div class="course-actions">
+                            <button class="edit-btn" title="Edit course" data-course-id="${course._id}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="delete-btn" title="Delete course" data-course-id="${course._id}">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            <button class="view-feedback-btn" title="View Feedback" data-course-id="${course._id}">
+                                <i class="fas fa-comments"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <p class="course-description">${course.description}</p>
+                    <div class="course-stats">
+                        <div class="stat" title="Enrolled Students">
+                            <i class="fas fa-users"></i>
+                            <span>${course.enrolledStudents?.length || 0} Students</span>
+                        </div>
+                        <div class="stat" title="Course Modules">
+                            <i class="fas fa-book"></i>
+                            <span>${course.modules?.length || 0} Modules</span>
+                        </div>
+                        <div class="stat" title="Course Duration">
+                            <i class="fas fa-clock"></i>
+                            <span>${course.duration || 0}h</span>
+                        </div>
+                    </div>
+                    <div class="course-footer">
+                        <span class="category">${course.category}</span>
+                        <span class="level">${course.level}</span>
+                    </div>
+                    <div class="course-actions">
+                        <button class="action-btn" onclick="window.location.href='module-manager.html?courseId=${course._id}'">
+                            <i class="fas fa-book"></i>
+                            Manage Content
+                        </button>
+                        <button class="action-btn" style="margin-left:0.5em;" onclick="window.location.href='assessment-manager.html?courseId=${course._id}'">
+                            <i class="fas fa-tasks"></i>
+                            Assessment Manager
+                        </button>
+                        <button class="action-btn report-btn" style="margin-left:0.5em;background:#4a90e2;color:#fff;" onclick="window.location.href='course-report.html?courseId=${course._id}'">
+                            <i class="fas fa-chart-bar"></i>
+                            Report
+                        </button>
+                    </div>
+                `;
+
+                // Add event listeners for edit and delete buttons
+                const editBtn = courseElement.querySelector('.edit-btn');
+                const deleteBtn = courseElement.querySelector('.delete-btn');
+                const viewFeedbackBtn = courseElement.querySelector('.view-feedback-btn');
+
+                editBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    editCourse(course._id);
+                });
+
+                deleteBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    deleteCourse(course._id);
+                });
+
+                viewFeedbackBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    viewCourseFeedback(course._id);
+                });
+
+                coursesGrid.appendChild(courseElement);
+            });
+
+            coursesContainer.appendChild(coursesGrid);
+        }
+
+        // Delete course function
+        async function deleteCourse(courseId) {
+            if (!confirm('Are you sure you want to delete this course? This action cannot be undone.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/courses/${courseId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${auth.getToken()}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to delete course');
+                }
+
+                // Refresh the courses list
+                fetchTeacherCourses();
+            } catch (error) {
+                console.error('Error deleting course:', error);
+                alert('Failed to delete course. Please try again.');
+            }
+        }
+
+        // Edit course function
+        async function editCourse(courseId) {
+            try {
+                const response = await fetch(`/api/courses/${courseId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${auth.getToken()}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch course details');
+                }
+
+                const course = await response.json();
+                
+                // Fill the form with course details
+                document.getElementById('courseId').value = course._id;
+                document.getElementById('courseTitle').value = course.title;
+                document.getElementById('courseDescription').value = course.description;
+                document.getElementById('courseCategory').value = course.category;
+                document.getElementById('courseLevel').value = course.level;
+                document.getElementById('courseDuration').value = course.duration;
+
+                // Update modal title
+                document.getElementById('modalTitle').textContent = 'Edit Course';
+                document.querySelector('.submit-btn').textContent = 'Update Course';
+
+                // Show modal
+                document.getElementById('createCourseModal').style.display = 'block';
+            } catch (error) {
+                console.error('Error fetching course details:', error);
+                alert('Failed to load course details. Please try again.');
+            }
+        }
+
+        // View course feedback function
+        async function viewCourseFeedback(courseId) {
+            try {
+                const response = await fetch(`/api/feedback/courses/${courseId}/feedback`, {
+                    headers: {
+                        'Authorization': `Bearer ${auth.getToken()}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch course feedback');
+                }
+
+                const feedback = await response.json();
+                
+                // Fill the modal with feedback as a table
+                const modalBody = document.getElementById('courseFeedbackModalBody');
+                if (!feedback.length) {
+                  modalBody.innerHTML = '<div style="text-align:center;padding:2em;">No feedback yet for this course.</div>';
+                  return;
+                }
+                modalBody.innerHTML = `
+                  <table style="width:100%;border-collapse:collapse;background:rgba(255,255,255,0.02);">
+                    <thead>
+                      <tr style="background:rgba(255,255,255,0.08);">
+                        <th>Student</th>
+                        <th>Assessment</th>
+                        <th>Rating</th>
+                        <th>Feedback</th>
+                        <th>Submitted At</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${feedback.map(f => `
+                        <tr data-feedback-id="${f._id}">
+                          <td>${f.studentName}</td>
+                          <td>${f.assessment || ''}</td>
+                          <td>${'★'.repeat(Number(f.rating))}${'☆'.repeat(5-Number(f.rating))}</td>
+                          <td>${f.feedback ? f.feedback.replace(/</g, '&lt;').replace(/>/g, '&gt;') : ''}</td>
+                          <td>${new Date(f.createdAt).toLocaleString()}</td>
+                          <td><button class="delete-feedback-btn" data-feedback-id="${f._id}" style="color:#fff;background:#dc3545;border:none;padding:0.4em 0.9em;border-radius:6px;cursor:pointer;">Delete</button></td>
+                        </tr>
+                      `).join('')}
+                    </tbody>
+                  </table>
+                `;
+
+                // Add delete handlers
+                modalBody.querySelectorAll('.delete-feedback-btn').forEach(btn => {
+                  btn.onclick = async function() {
+                    if (!confirm('Delete this feedback?')) return;
+                    const feedbackId = btn.getAttribute('data-feedback-id');
+                    try {
+                      const res = await fetch(`/api/feedback/${feedbackId}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${auth.getToken()}` }
+                      });
+                      if (!res.ok) throw new Error('Failed to delete feedback');
+                      // Remove row
+                      btn.closest('tr').remove();
+                    } catch (err) {
+                      alert('Failed to delete feedback.');
+                    }
+                  }
+                });
+
+                // Show modal
+                document.getElementById('courseFeedbackModal').style.display = 'block';
+            } catch (error) {
+                console.error('Error fetching course feedback:', error);
+                alert('Failed to load course feedback. Please try again.');
+            }
+        }
+
+        // Course form submission
+        const courseForm = document.getElementById('courseForm');
+        courseForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = courseForm.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<div class="loading-spinner"></div>';
+
+            const courseId = document.getElementById('courseId').value;
+            const courseData = {
+                title: document.getElementById('courseTitle').value,
+                description: document.getElementById('courseDescription').value,
+                category: document.getElementById('courseCategory').value,
+                level: document.getElementById('courseLevel').value,
+                duration: parseInt(document.getElementById('courseDuration').value)
+            };
+
+            try {
+                const url = courseId ? `/api/courses/${courseId}` : '/api/courses';
+                const method = courseId ? 'PUT' : 'POST';
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${auth.getToken()}`
+                    },
+                    body: JSON.stringify(courseData)
+                });
+
+                if (!response.ok) {
+                    throw new Error(courseId ? 'Failed to update course' : 'Failed to create course');
+                }
+
+                // Reset form and close modal
+                courseForm.reset();
+                document.getElementById('courseId').value = '';
+                document.getElementById('modalTitle').textContent = 'Create New Course';
+                document.querySelector('.submit-btn').textContent = 'Create Course';
+                document.getElementById('createCourseModal').style.display = 'none';
+
+                // Refresh courses list
+                fetchTeacherCourses();
+            } catch (error) {
+                console.error('Error:', error);
+                const errorElement = document.getElementById('courseFormError');
+                errorElement.textContent = error.message;
+                errorElement.style.display = 'block';
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = courseId ? 'Update Course' : 'Create Course';
+            }
+        });
+
+        // Modal controls
+        const modal = document.getElementById('createCourseModal');
+        const createCourseBtn = document.getElementById('createCourseBtn');
+        const closeBtn = document.querySelector('.close');
+
+        createCourseBtn.onclick = () => {
+            // Reset form when creating new course
+            courseForm.reset();
+            document.getElementById('courseId').value = '';
+            document.getElementById('modalTitle').textContent = 'Create New Course';
+            document.querySelector('.submit-btn').textContent = 'Create Course';
+            document.getElementById('courseFormError').style.display = 'none';
+            modal.style.display = 'block';
+        };
+
+        closeBtn.onclick = () => {
+            modal.style.display = 'none';
+            courseForm.reset();
+            document.getElementById('courseId').value = '';
+            document.getElementById('modalTitle').textContent = 'Create New Course';
+            document.querySelector('.submit-btn').textContent = 'Create Course';
+            document.getElementById('courseFormError').style.display = 'none';
+        };
+
+        window.onclick = (event) => {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+                courseForm.reset();
+                document.getElementById('courseId').value = '';
+                document.getElementById('modalTitle').textContent = 'Create New Course';
+                document.querySelector('.submit-btn').textContent = 'Create Course';
+                document.getElementById('courseFormError').style.display = 'none';
+            }
+        };
+
+        // Close course feedback modal
+        const closeCourseFeedbackModal = document.getElementById('closeCourseFeedbackModal');
+        closeCourseFeedbackModal.onclick = () => {
+            document.getElementById('courseFeedbackModal').style.display = 'none';
+        };
+
+        window.onclick = (event) => {
+            if (event.target === document.getElementById('courseFeedbackModal')) {
+                document.getElementById('courseFeedbackModal').style.display = 'none';
+            }
+        };
+
+        // Initial load of courses
+        fetchTeacherCourses();
+    </script>
+        <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <script src="https://js.puter.com/v2/"></script>
+    <script src="../js/chat.js"></script>
+    <script src="dashboard-reports.js"></script>
+</body>
+</html>

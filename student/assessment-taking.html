@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Take Assessment</title>
+    <link rel="stylesheet" href="../styles/assessment.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background: linear-gradient(135deg, #f5f6fa 60%, #e7eafc 100%); font-family: 'Poppins', sans-serif; margin: 0; }
+        .assessment-container {
+            max-width: 700px; margin: 3rem auto; background: #fff; border-radius: 16px; box-shadow: 0 8px 32px rgba(74,144,226,0.10); padding: 2.5rem 2rem 2rem 2rem;
+        }
+        .assessment-header {
+            display: flex; align-items: center; gap: 1rem; margin-bottom: 2.2rem;
+        }
+        .assessment-header .fa-clipboard-list {
+            color: #8e44ad; font-size: 2.2rem; background: #f3e6fa; padding: 0.7rem; border-radius: 50%; box-shadow: 0 2px 8px rgba(142,68,173,0.08);
+        }
+        .assessment-title { font-size: 2rem; font-weight: 700; color: #8e44ad; margin: 0; }
+        .assessment-meta { color: #888; font-size: 1rem; margin-bottom: 1.5rem; }
+        .question-card {
+            background: #f9f8fd; border-radius: 12px; box-shadow: 0 2px 8px rgba(142,68,173,0.04); padding: 1.4rem 1.2rem; margin-bottom: 1.5rem;
+        }
+        .question-title { font-size: 1.15rem; font-weight: 600; color: #222; margin-bottom: 0.7rem; }
+        .loading, .error { text-align: center; margin: 2rem 0; color: #888; }
+        .submit-btn {
+            background: linear-gradient(45deg, #8e44ad, #ff9800); color: #fff; border: none; border-radius: 8px; padding: 0.7em 2em; font-size: 1.1em; font-weight: 600; cursor: pointer; margin-top: 2rem; box-shadow: 0 2px 8px rgba(142,68,173,0.08); transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+        }
+        .submit-btn:hover { background: linear-gradient(45deg, #ff9800, #8e44ad); transform: translateY(-2px) scale(1.03); box-shadow: 0 4px 16px rgba(142,68,173,0.14); }
+        @media (max-width: 600px) {
+            .assessment-container { padding: 1rem 0.2rem; }
+        }
+    </style>
+    <script type="module" src="/student/assessment-taking.js"></script>
+    <link rel="stylesheet" href="/styles/assessment.css">
+</head>
+<body>
+    <div class="assessment-container">
+        <div id="assessment-content">
+            <div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading assessment...</div>
+        </div>
+        <div id="assessment-taking"></div>
+    </div>
+    <!-- Chart.js CDN for result visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="module">
+        // Fetch and render assessment header/meta only
+        const params = new URLSearchParams(window.location.search);
+        const assessmentId = params.get('id');
+        const content = document.getElementById('assessment-content');
+        if (!assessmentId) {
+            content.innerHTML = '<div class="error">No assessment selected.</div>';
+        } else {
+            fetch(`/api/assessments/${assessmentId}`, {
+                headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            })
+            .then(res => res.ok ? res.json() : Promise.reject('Failed to load assessment'))
+            .then(assessment => {
+                content.innerHTML = `
+                    <div class="assessment-header">
+                        <i class="fas fa-clipboard-list"></i>
+                        <div>
+                            <div class="assessment-title">${assessment.title}</div>
+                            <div class="assessment-meta">${assessment.description || ''}</div>
+                        </div>
+                    </div>
+                `;
+                // Questions UI will be handled by assessment-taking.js via #assessment-taking
+            })
+            .catch(err => {
+                content.innerHTML = `<div class='error'>${err}</div>`;
+            });
+        }
+    </script>
+</body>
+</html>

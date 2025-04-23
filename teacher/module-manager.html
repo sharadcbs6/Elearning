@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Module Manager - E-Learning Platform</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="../styles/module-manager.css">
+    
+    <style>
+        body {
+    min-height: 100vh;
+    background: linear-gradient(45deg, #1a1a1a, #2a2a72);
+    animation: gradientBG 15s ease infinite;
+    background-size: 400% 400%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Poppins', sans-serif;
+    color: white;
+}
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="nav-bar">
+            <h2><i class="fas fa-book"></i> Course Content Manager</h2>
+            <div class="nav-actions">
+                <button class="action-btn" onclick="window.location.href='dashboard.html'">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Dashboard
+                </button>
+            </div>
+        </div>
+        
+        <div class="course-info">
+            <h3 id="courseTitle">
+                <i class="fas fa-graduation-cap"></i>
+                <span>Loading course...</span>
+            </h3>
+            <p id="courseDescription"></p>
+            <div class="course-meta">
+                <span><i class="fas fa-users"></i> <span id="enrolledCount">0</span> Students Enrolled</span>
+                <span><i class="fas fa-book"></i> <span id="moduleCount">0</span> Modules</span>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <div class="section-header">
+                <h4><i class="fas fa-cubes"></i> Course Modules</h4>
+                <button class="action-btn primary" id="addModuleBtn">
+                    <i class="fas fa-plus"></i>
+                    Add New Module
+                </button>
+            </div>
+            
+            <div id="moduleList">
+                <!-- Modules will be inserted here -->
+                <div class="empty-state">
+                    <i class="fas fa-book-open"></i>
+                    <h3>No modules yet</h3>
+                    <p>Start by adding your first module to this course!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Module Modal -->
+    <div id="moduleModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-book"></i> <span id="moduleModalTitle">Add New Module</span></h3>
+                <span class="close">&times;</span>
+            </div>
+            <form id="moduleForm">
+                <input type="hidden" id="moduleId">
+                <div class="form-group">
+                    <label for="moduleTitle">Module Title</label>
+                    <input type="text" id="moduleTitle" required placeholder="Enter module title">
+                </div>
+                
+                <div class="form-group">
+                    <label for="moduleContent">Content</label>
+                    <textarea id="moduleContent" required placeholder="Enter module content" rows="4"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Resources</label>
+                    <div id="resourceList"></div>
+                    <button type="button" class="action-btn" id="addResourceBtn">
+                        <i class="fas fa-plus"></i>
+                        Add Resource
+                    </button>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="cancel-btn" onclick="closeModuleModal()">Cancel</button>
+                    <button type="submit" class="submit-btn">Save Module</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Resource Modal -->
+    <div id="resourceModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-link"></i> Add Resource</h3>
+                <span class="close">&times;</span>
+            </div>
+            <form id="resourceForm">
+                <div class="form-group">
+                    <label for="resourceType">Resource Type</label>
+                    <select id="resourceType" required>
+                        <option value="video">Video</option>
+                        <option value="document">Document</option>
+                        <option value="link">Link</option>
+                        <option value="3d">3D Model</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="resourceUrl">URL</label>
+                    <input type="url" id="resourceUrl" required placeholder="Enter resource URL">
+                </div>
+
+                <div class="form-group">
+                    <label for="resourceDescription">Description</label>
+                    <textarea id="resourceDescription" required placeholder="Enter resource description"></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="cancel-btn" onclick="closeResourceModal()">Cancel</button>
+                    <button type="submit" class="submit-btn">Add Resource</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth } from '../auth/auth.js';
+
+        let currentCourseId = null;
+        let modules = [];
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Get course ID from URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            currentCourseId = urlParams.get('courseId');
+            
+            if (!currentCourseId) {
+                window.location.href = 'dashboard.html';
+                return;
+            }
+
+            await loadCourseData();
+            setupEventListeners();
+        });
+
+        async function loadCourseData() {
+            try {
+                const response = await fetch(`/api/courses/${currentCourseId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${auth.getToken()}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message || 'Failed to load course');
+                }
+                
+                const course = await response.json();
+                document.getElementById('courseTitle').querySelector('span').textContent = course.title;
+                document.getElementById('courseDescription').textContent = course.description;
+                document.getElementById('enrolledCount').textContent = course.enrolledStudents?.length || 0;
+                document.getElementById('moduleCount').textContent = course.modules?.length || 0;
+                
+                modules = course.modules || [];
+                renderModules();
+            } catch (error) {
+                console.error('Error loading course:', error);
+                showError(error.message || 'Failed to load course data');
+            }
+        }
+
+        function showError(message, type = 'error') {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = `message ${type}`;
+            errorDiv.textContent = message;
+            errorDiv.style.cssText = `
+                background: ${type === 'success' ? 'rgba(76,175,80,0.2)' : 'rgba(255,71,87,0.2)'};
+                color: white;
+                padding: 1rem;
+                border-radius: 10px;
+                margin: 1rem 0;
+                text-align: center;
+            `;
+            
+            setTimeout(() => errorDiv.remove(), 5000);
+            document.querySelector('.dashboard-container').insertBefore(errorDiv, document.querySelector('.content-section'));
+        }
+
+        async function deleteModule(index) {
+            if (!confirm('Are you sure you want to delete this module?')) return;
+
+            const moduleId = modules[index]._id;
+            try {
+                const response = await fetch(`/api/courses/${currentCourseId}/modules/${moduleId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${auth.getToken()}`
+                    }
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message || 'Failed to delete module');
+                }
+
+                modules.splice(index, 1);
+                renderModules();
+                document.getElementById('moduleCount').textContent = modules.length;
+                showError('Module deleted successfully', 'success');
+            } catch (error) {
+                console.error('Error deleting module:', error);
+                showError(error.message || 'Failed to delete module');
+            }
+        }
+
+        async function submitModule(moduleData, moduleId = null) {
+            try {
+                const url = moduleId 
+                    ? `/api/courses/${currentCourseId}/modules/${moduleId}`
+                    : `/api/courses/${currentCourseId}/modules`;
+                
+                const response = await fetch(url, {
+                    method: moduleId ? 'PUT' : 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${auth.getToken()}`
+                    },
+                    body: JSON.stringify(moduleData)
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message || 'Failed to save module');
+                }
+                
+                const updatedCourse = await response.json();
+                modules = updatedCourse.modules || [];
+                renderModules();
+                document.getElementById('moduleCount').textContent = modules.length;
+                showError(moduleId ? 'Module updated successfully' : 'Module added successfully', 'success');
+                return true;
+            } catch (error) {
+                console.error('Error saving module:', error);
+                showError(error.message || 'Failed to save module');
+                return false;
+            }
+        }
+
+        function renderModules() {
+            const moduleList = document.getElementById('moduleList');
+            moduleList.innerHTML = '';
+
+            if (!modules.length) {
+                moduleList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-book-open"></i>
+                        <h3>No modules yet</h3>
+                        <p>Start by adding your first module to this course!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            modules.sort((a, b) => a.order - b.order).forEach((module, index) => {
+                const moduleElement = createModuleElement(module, index);
+                moduleList.appendChild(moduleElement);
+            });
+        }
+
+        function createModuleElement(module, index) {
+            const moduleElement = document.createElement('div');
+            moduleElement.className = 'module-item';
+            moduleElement.innerHTML = `
+                <div class="module-info">
+                    <div class="module-title">${module.title}</div>
+                    <div class="module-content">${module.content}</div>
+                </div>
+                <div class="module-actions">
+                    <button type="button" class="action-btn" onclick="editModule(${index})">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button type="button" class="action-btn danger" onclick="deleteModule(${index})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `;
+            return moduleElement;
+        }
+
+        function editModule(index) {
+            const module = modules[index];
+            document.getElementById('moduleModalTitle').textContent = 'Edit Module';
+            document.getElementById('moduleId').value = module._id;
+            document.getElementById('moduleTitle').value = module.title;
+            document.getElementById('moduleContent').value = module.content;
+            
+            // Clear and populate resources
+            const resourceList = document.getElementById('resourceList');
+            resourceList.innerHTML = '';
+            if (module.resources) {
+                module.resources.forEach(resource => addResourceToList(resource));
+            }
+            
+            document.getElementById('moduleModal').style.display = 'block';
+        }
+
+        function addResourceToList(resource = null) {
+            const resourceList = document.getElementById('resourceList');
+            const resourceDiv = document.createElement('div');
+            resourceDiv.className = 'resource-item';
+            
+            if (resource) {
+                resourceDiv.innerHTML = `
+                    <div class="resource-info">
+                        <div class="resource-title">${resource.description}</div>
+                        <div class="resource-type">${resource.type}</div>
+                        <div class="resource-url">${resource.url}</div>
+                    </div>
+                    <button type="button" class="action-btn danger" onclick="this.parentElement.remove()">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                `;
+            } else {
+                document.getElementById('resourceModal').style.display = 'block';
+            }
+            
+            resourceList.appendChild(resourceDiv);
+        }
+
+        function setupEventListeners() {
+            // Add module button
+            document.getElementById('addModuleBtn').addEventListener('click', () => {
+                document.getElementById('moduleModalTitle').textContent = 'Add New Module';
+                document.getElementById('moduleId').value = '';
+                document.getElementById('moduleForm').reset();
+                document.getElementById('resourceList').innerHTML = '';
+                document.getElementById('moduleModal').style.display = 'block';
+            });
+
+            // Add resource button
+            document.getElementById('addResourceBtn').addEventListener('click', () => {
+                document.getElementById('resourceForm').reset();
+                document.getElementById('resourceModal').style.display = 'block';
+            });
+
+            // Module form submission
+            document.getElementById('moduleForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const moduleId = document.getElementById('moduleId').value;
+                const moduleData = {
+                    title: document.getElementById('moduleTitle').value,
+                    content: document.getElementById('moduleContent').value,
+                    order: moduleId ? modules.find(m => m._id === moduleId)?.order || modules.length : modules.length,
+                    resources: Array.from(document.getElementById('resourceList').children).map(resourceDiv => ({
+                        type: resourceDiv.querySelector('.resource-type').textContent,
+                        url: resourceDiv.querySelector('.resource-url').textContent,
+                        description: resourceDiv.querySelector('.resource-title').textContent
+                    }))
+                };
+
+                const success = await submitModule(moduleData, moduleId);
+                if (success) {
+                    closeModuleModal();
+                }
+            });
+
+            // Resource form submission
+            document.getElementById('resourceForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const resource = {
+                    type: document.getElementById('resourceType').value,
+                    url: document.getElementById('resourceUrl').value,
+                    description: document.getElementById('resourceDescription').value
+                };
+                addResourceToList(resource);
+                closeResourceModal();
+            });
+
+            // Close buttons
+            document.querySelectorAll('.close').forEach(btn => {
+                btn.onclick = function() {
+                    this.closest('.modal').style.display = 'none';
+                }
+            });
+
+            // Close on outside click
+            window.onclick = function(event) {
+                if (event.target.classList.contains('modal')) {
+                    event.target.style.display = 'none';
+                }
+            }
+        }
+
+        function closeModuleModal() {
+            document.getElementById('moduleModal').style.display = 'none';
+            document.getElementById('moduleForm').reset();
+            document.getElementById('moduleId').value = '';
+            document.getElementById('resourceList').innerHTML = '';
+        }
+
+        function closeResourceModal() {
+            document.getElementById('resourceModal').style.display = 'none';
+            document.getElementById('resourceForm').reset();
+        }
+
+        // Make functions available globally
+        window.editModule = editModule;
+        window.deleteModule = deleteModule;
+        window.closeModuleModal = closeModuleModal;
+        window.closeResourceModal = closeResourceModal;
+        window.addResourceToList = addResourceToList;
+    </script>
+</body>
+</html>

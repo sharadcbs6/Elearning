@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Module Viewer - E-Learning Platform</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="../styles/module-viewer.css">
+    <link rel="stylesheet" href="../styles/chat.css">
+</head>
+<body>
+     <!-- Chat Widget -->
+     <div class="chat-widget">
+        <button class="chat-icon-button" id="chat-icon-button">
+            <i class="fas fa-comment"></i>
+        </button>
+
+        <div class="chat-container">
+            <div class="chat-header">
+                <div class="header-blur"></div>
+                <div class="header-glow"></div>
+                <div class="header-content">
+                    <div class="header-title">
+                        <h1 style="font-size: 1.5rem;">AI Learning Assistant</h1>
+                        <p style="font-size: 1rem;">Your personal AI tutor</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="theme-toggle" title="Toggle dark mode">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="particles" id="particles"></div>
+            <div class="chat-messages" id="chat-messages">
+                <div class="message bot-message show">
+                    <div class="message-content">
+                        <h3>👋 Welcome!</h3>
+                        <p>I'm your AI learning assistant. Ask me anything!</p>
+                    </div>
+                    <div class="message-meta">
+                        <div class="message-timestamp">
+                            <i class="fas fa-clock"></i>
+                            <span>Just now</span>
+                        </div>
+                        <div class="message-actions">
+                            <button class="action-btn" title="Copy message">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                            <button class="action-btn" title="Read aloud">
+                                <i class="fas fa-volume-up"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="typing-indicator" id="typing-indicator" style="display: none;">
+                <div class="typing-dots">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+                <span>AI is thinking...</span>
+            </div>
+            <div class="input-container">
+                <button class="voice-input" id="voice-input" title="Voice input">
+                    <i class="fas fa-microphone"></i>
+                </button>
+                <input type="text" id="message-input" placeholder="Type your message here..." autocomplete="off">
+                <button id="send-button">
+                    <i class="fas fa-paper-plane"></i>
+                    <span>Send</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- End Chat Widget -->
+    <div class="dashboard-container">
+        <div class="nav-bar">
+            <h2><i class="fas fa-graduation-cap"></i> Course Content</h2>
+            <div class="nav-actions">
+                <button class="action-btn" onclick="window.location.href='dashboard.html'">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Dashboard
+                </button>
+            </div>
+        </div>
+
+        <div class="course-info">
+            <h3 id="courseTitle">
+                <i class="fas fa-book"></i>
+                <span>Loading course...</span>
+            </h3>
+            <p id="courseDescription"></p>
+            <div class="progress-info">
+                <div class="progress-bar">
+                    <div id="courseProgress" class="progress-fill"></div>
+                </div>
+                <span id="progressText">0% Complete</span>
+            </div>
+        </div>
+
+        <div class="content-container">
+            <div class="modules-sidebar">
+                <h4><i class="fas fa-list"></i> Course Modules</h4>
+                <div id="modulesList">
+                    <!-- Modules will be listed here -->
+                </div>
+            </div>
+
+            <div class="content-viewer">
+                <div id="contentHeader" class="content-header">
+                    <h3>Select a module to begin</h3>
+                </div>
+                <div id="contentBody" class="content-body">
+                    <!-- Module content will be displayed here -->
+                </div>
+                <div id="resourcesSection" class="resources-section">
+                    <h4>Resources</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Video Player Modal -->
+    <div id="videoModal" class="modal">
+        <div class="modal-content video-modal">
+            <div class="modal-header">
+                <h3 id="modalTitle">Video Title</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="video-container">
+                    <div id="videoPlayer"></div>
+                </div>
+                <div class="notes-section">
+                    <div class="notes-header">
+                        <h4><i class="fas fa-sticky-note"></i> Notes</h4>
+                        <button class="action-btn" onclick="toggleNoteEditor()">
+                            <i class="fas fa-plus"></i> Add Note
+                        </button>
+                    </div>
+                    <div id="noteEditor" style="display: none;">
+                        <textarea id="noteContent" placeholder="Type your notes here..."></textarea>
+                        <div class="note-actions">
+                            <button class="action-btn" onclick="saveNote()">
+                                <i class="fas fa-save"></i> Save
+                            </button>
+                            <button class="action-btn secondary" onclick="toggleNoteEditor()">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                        </div>
+                    </div>
+                    <div id="notesList" class="notes-list">
+                        <!-- Notes will be listed here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentCourseId = null;
+        let currentResourceId = null;
+        let modules = [];
+        let currentModuleIndex = -1;
+
+        // Global functions for modal and resource handling
+        function handleVideoUrl(url) {
+            if (!url) return '';
+            
+            try {
+                // Handle YouTube URLs
+                if (url.includes('youtube.com') || url.includes('youtu.be')) {
+                    let videoId = '';
+                    if (url.includes('youtu.be')) {
+                        videoId = url.split('youtu.be/')[1];
+                    } else if (url.includes('watch?v=')) {
+                        videoId = url.split('watch?v=')[1];
+                    }
+                    // Remove any additional parameters
+                    videoId = videoId.split('&')[0];
+                    return `https://www.youtube.com/embed/${videoId}`;
+                }
+                
+                // Handle Vimeo URLs
+                if (url.includes('vimeo.com')) {
+                    const videoId = url.split('vimeo.com/')[1];
+                    return `https://player.vimeo.com/video/${videoId}`;
+                }
+                
+                // Return original URL if no conversion needed
+                return url;
+            } catch (error) {
+                console.error('Error processing video URL:', error);
+                return url;
+            }
+        }
+
+        window.openVideoModal = function(url, title, resourceId) {
+            try {
+                console.log('Opening video modal:', { url, title });
+                const modal = document.getElementById('videoModal');
+                const videoPlayer = document.getElementById('videoPlayer');
+                const modalTitle = document.getElementById('modalTitle');
+                const videoUrl = handleVideoUrl(url);
+
+                console.log('Processed video URL:', videoUrl);
+                
+                modalTitle.textContent = title || 'Video';
+                videoPlayer.innerHTML = `
+                    <iframe 
+                        src="${videoUrl}"
+                        style="width: 100%; height: 100%;"
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowfullscreen>
+                    </iframe>
+                `;
+
+                modal.style.display = 'block';
+                
+                // Load notes for this resource
+                loadNotes(resourceId);
+                
+                function closeModal() {
+                    modal.style.display = 'none';
+                    videoPlayer.innerHTML = '';
+                }
+
+                const closeBtn = modal.querySelector('.close');
+                closeBtn.onclick = closeModal;
+
+                window.onclick = function(event) {
+                    if (event.target === modal) {
+                        closeModal();
+                    }
+                };
+
+                // Add escape key listener
+                document.addEventListener('keydown', function(event) {
+                    if (event.key === 'Escape' && modal.style.display === 'block') {
+                        closeModal();
+                    }
+                });
+            } catch (error) {
+                console.error('Error opening video modal:', error);
+                alert('Failed to open video. Please try again.');
+            }
+        };
+
+        // Note-taking functionality
+        window.toggleNoteEditor = function() {
+            const editor = document.getElementById('noteEditor');
+            const textarea = document.getElementById('noteContent');
+            editor.style.display = editor.style.display === 'none' ? 'block' : 'none';
+            if (editor.style.display === 'block') {
+                textarea.focus();
+            } else {
+                textarea.value = '';
+            }
+        };
+
+        window.saveNote = async function() {
+            const content = document.getElementById('noteContent').value.trim();
+            if (!content) {
+                showMessage('Please enter some content for your note', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/courses/${currentCourseId}/modules/${modules[currentModuleIndex]._id}/notes`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${auth.getToken()}`
+                    },
+                    body: JSON.stringify({
+                        content,
+                        resourceId: currentResourceId
+                    })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message || 'Failed to save note');
+                }
+
+                const note = await response.json();
+                
+                // Clear the editor
+                document.getElementById('noteContent').value = '';
+                toggleNoteEditor();
+                
+                // Add the new note to the list
+                addNoteToList(note);
+                
+                showMessage('Note saved successfully!', 'success');
+            } catch (error) {
+                console.error('Error saving note:', error);
+                showMessage(error.message || 'Failed to save note. Please try again.', 'error');
+            }
+        };
+
+        function addNoteToList(note) {
+            const notesList = document.getElementById('notesList');
+            
+            // If it's the first note, clear the empty state message
+            if (notesList.querySelector('.empty-state')) {
+                notesList.innerHTML = '';
+            }
+            
+            const noteElement = document.createElement('div');
+            noteElement.className = 'note-item';
+            noteElement.dataset.noteId = note._id || (note.timestamp && new Date(note.timestamp).toISOString());
+            const formattedDate = new Date(note.timestamp).toLocaleString(undefined, {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            const isOwner = (note.userId === user.id || note.userId === user.userId);
+            noteElement.innerHTML = `
+                <div class="note-content">${note.content}</div>
+                <div class="note-meta">
+                    <span class="note-time">
+                        <i class="fas fa-clock"></i> ${formattedDate}
+                    </span>
+                    ${isOwner ? `<button class="edit-note-btn action-btn"><i class="fas fa-edit"></i></button>
+                    <button class="delete-note-btn action-btn"><i class="fas fa-trash"></i></button>` : ''}
+                </div>
+            `;
+            
+            // Add new note at the top of the list
+            if (notesList.firstChild) {
+                notesList.insertBefore(noteElement, notesList.firstChild);
+            } else {
+                notesList.appendChild(noteElement);
+            }
+            
+            if (isOwner) {
+                // Edit
+                noteElement.querySelector('.edit-note-btn').onclick = function() {
+                    if (noteElement.querySelector('.note-edit-form')) return;
+                    const contentDiv = noteElement.querySelector('.note-content');
+                    const originalContent = note.content;
+                    contentDiv.innerHTML = `<textarea class='note-edit-area'>${originalContent}</textarea>
+                        <button class='save-edit-btn action-btn'>Save</button>
+                        <button class='cancel-edit-btn action-btn'>Cancel</button>`;
+                    const textarea = contentDiv.querySelector('.note-edit-area');
+                    textarea.focus();
+                    // Save
+                    contentDiv.querySelector('.save-edit-btn').onclick = async function() {
+                        const newContent = textarea.value.trim();
+                        if (!newContent) return showMessage('Content required', 'error');
+                        try {
+                            const resp = await fetch(`/api/courses/${currentCourseId}/modules/${modules[currentModuleIndex]._id}/notes/${note._id || new Date(note.timestamp).toISOString()}`, {
+                                method: 'PATCH',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${auth.getToken()}`
+                                },
+                                body: JSON.stringify({ content: newContent })
+                            });
+                            if (!resp.ok) throw new Error('Failed to update note');
+                            const updated = await resp.json();
+                            contentDiv.innerHTML = updated.content;
+                            showMessage('Note updated!', 'success');
+                        } catch (e) {
+                            showMessage('Error updating note', 'error');
+                        }
+                    };
+                    // Cancel
+                    contentDiv.querySelector('.cancel-edit-btn').onclick = function() {
+                        contentDiv.innerHTML = originalContent;
+                    };
+                };
+                // Delete
+                noteElement.querySelector('.delete-note-btn').onclick = async function() {
+                    if (!confirm('Delete this note?')) return;
+                    try {
+                        const resp = await fetch(`/api/courses/${currentCourseId}/modules/${modules[currentModuleIndex]._id}/notes/${note._id || new Date(note.timestamp).toISOString()}`, {
+                            method: 'DELETE',
+                            headers: { 'Authorization': `Bearer ${auth.getToken()}` }
+                        });
+                        if (!resp.ok) throw new Error('Failed to delete note');
+                        noteElement.remove();
+                        showMessage('Note deleted!', 'success');
+                    } catch (e) {
+                        showMessage('Error deleting note', 'error');
+                    }
+                };
+            }
+        }
+
+        async function loadNotes(resourceId) {
+            currentResourceId = resourceId;
+            const notesList = document.getElementById('notesList');
+            notesList.innerHTML = `
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading notes...</p>
+                </div>
+            `;
+
+            try {
+                const response = await fetch(`/api/courses/${currentCourseId}/modules/${modules[currentModuleIndex]._id}/notes`, {
+                    headers: {
+                        'Authorization': `Bearer ${auth.getToken()}`
+                    }
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message || 'Failed to load notes');
+                }
+
+                const notes = await response.json();
+                const resourceNotes = notes.filter(note => note.resourceId === resourceId);
+                
+                if (resourceNotes.length === 0) {
+                    notesList.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-sticky-note"></i>
+                            <p>No notes yet. Add one!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                notesList.innerHTML = '';
+                // Sort notes by timestamp, newest first
+                resourceNotes
+                    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+                    .forEach(addNoteToList);
+            } catch (error) {
+                console.error('Error loading notes:', error);
+                notesList.innerHTML = `
+                    <div class="error-state">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <p>${error.message || 'Failed to load notes. Please try again.'}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Global functions for modal and resource handling
+        function handleVideoUrl(url) {
+            if (!url) return '';
+            
+            try {
+                // Handle YouTube URLs
+                if (url.includes('youtube.com') || url.includes('youtu.be')) {
+                    let videoId = '';
+                    if (url.includes('youtu.be')) {
+                        videoId = url.split('youtu.be/')[1];
+                    } else if (url.includes('watch?v=')) {
+                        videoId = url.split('watch?v=')[1];
+                    }
+                    // Remove any additional parameters
+                    videoId = videoId.split('&')[0];
+                    return `https://www.youtube.com/embed/${videoId}`;
+                }
+                
+                // Handle Vimeo URLs
+                if (url.includes('vimeo.com')) {
+                    const videoId = url.split('vimeo.com/')[1];
+                    return `https://player.vimeo.com/video/${videoId}`;
+                }
+                
+                // Return original URL if no conversion needed
+                return url;
+            } catch (error) {
+                console.error('Error processing video URL:', error);
+                return url;
+            }
+        }
+
+        window.openVideoModal = function(url, title, resourceId) {
+            try {
+                console.log('Opening video modal:', { url, title });
+                const modal = document.getElementById('videoModal');
+                const videoPlayer = document.getElementById('videoPlayer');
+                const modalTitle = document.getElementById('modalTitle');
+                const videoUrl = handleVideoUrl(url);
+
+                console.log('Processed video URL:', videoUrl);
+                
+                modalTitle.textContent = title || 'Video';
+                videoPlayer.innerHTML = `
+                    <iframe 
+                        src="${videoUrl}"
+                        style="width: 100%; height: 100%;"
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowfullscreen>
+                    </iframe>
+                `;
+
+                modal.style.display = 'block';
+                
+                // Load notes for this resource
+                loadNotes(resourceId);
+                
+                function closeModal() {
+                    modal.style.display = 'none';
+                    videoPlayer.innerHTML = '';
+                }
+
+                const closeBtn = modal.querySelector('.close');
+                closeBtn.onclick = closeModal;
+
+                window.onclick = function(event) {
+                    if (event.target === modal) {
+                        closeModal();
+                    }
+                };
+
+                // Add escape key listener
+                document.addEventListener('keydown', function(event) {
+                    if (event.key === 'Escape' && modal.style.display === 'block') {
+                        closeModal();
+                    }
+                });
+            } catch (error) {
+                console.error('Error opening video modal:', error);
+                alert('Failed to open video. Please try again.');
+            }
+        };
+
+        window.openResource = function(type, url, title) {
+            if (type === 'video') {
+                window.openVideoModal(url, title, url);
+            } else {
+                window.open(url, '_blank');
+            }
+        };
+    </script>
+
+    <script type="module">
+        import { auth } from '../auth/auth.js';
+
+        // Check if user is logged in
+        const user = auth.getCurrentUser();
+        if (!user) {
+            window.location.href = '/auth/login.html';
+        }
+
+        // Get course ID from URL and initialize global variable
+        const urlParams = new URLSearchParams(window.location.search);
+        currentCourseId = urlParams.get('courseId');
+        if (!currentCourseId) {
+            window.location.href = 'dashboard.html';
+        }
+
+        // Initialize other variables
+        window.user = user;
+        window.auth = auth;
+
+        async function loadCourseData() {
+            try {
+                const courseResponse = await fetch(`/api/courses/${currentCourseId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${auth.getToken()}`
+                    }
+                });
+
+                if (!courseResponse.ok) {
+                    const error = await courseResponse.json();
+                    throw new Error(error.message || 'Failed to load course');
+                }
+
+                const course = await courseResponse.json();
+
+                // Now fetch progress
+                const progressResponse = await fetch(`/api/courses/${currentCourseId}/progress`, {
+                    headers: {
+                        'Authorization': `Bearer ${auth.getToken()}`
+                    }
+                });
+
+                let progress = { progress: 0 };
+                if (progressResponse.ok) {
+                    progress = await progressResponse.json();
+                }
+
+                document.getElementById('courseTitle').querySelector('span').textContent = course.title;
+                document.getElementById('courseDescription').textContent = course.description || 'No description available';
+                
+                modules = course.modules || [];
+                renderModulesList();
+                updateProgress(progress.progress);
+
+                // If there are modules, load the first one
+                if (modules.length > 0) {
+                    loadModule(0);
+                } else {
+                    document.getElementById('contentBody').innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-info-circle"></i>
+                            <p>No modules available in this course yet.</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading course:', error);
+                showError(error.message || 'Failed to load course data');
+                document.getElementById('contentBody').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <p>${error.message || 'Failed to load course data'}</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function markModuleComplete(moduleId) {
+            try {
+                const response = await fetch(`/api/courses/${currentCourseId}/modules/${moduleId}/complete`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${auth.getToken()}`
+                    }
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message || 'Failed to mark module as complete');
+                }
+
+                // Update UI to show completion
+                const module = modules[currentModuleIndex];
+                if (!module.completedBy) {
+                    module.completedBy = [];
+                }
+                if (!module.completedBy.includes(user.userId)) {
+                    module.completedBy.push(user.userId);
+                }
+
+                // Re-render module list to show completion status
+                renderModulesList();
+
+                // Fetch and update progress
+                const progressResponse = await fetch(`/api/courses/${currentCourseId}/progress`, {
+                    headers: {
+                        'Authorization': `Bearer ${auth.getToken()}`
+                    }
+                });
+
+                if (progressResponse.ok) {
+                    const progress = await progressResponse.json();
+                    updateProgress(progress.progress);
+                }
+
+                // Show success message
+                showMessage('Module marked as complete!', 'success');
+            } catch (error) {
+                console.error('Error marking module complete:', error);
+                showMessage(error.message || 'Failed to mark module as complete', 'error');
+            }
+        }
+
+        function showMessage(message, type = 'info') {
+            const existingMessage = document.querySelector('.message');
+            if (existingMessage) {
+                existingMessage.remove();
+            }
+
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            messageDiv.innerHTML = `
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                <span>${message}</span>
+            `;
+
+            document.querySelector('.dashboard-container').insertBefore(messageDiv, document.querySelector('.content-container'));
+
+            // Remove message after 3 seconds
+            setTimeout(() => {
+                messageDiv.remove();
+            }, 3000);
+        }
+
+        function renderModulesList() {
+            const modulesList = document.getElementById('modulesList');
+            modulesList.innerHTML = '';
+
+            if (!modules.length) {
+                modulesList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-info-circle"></i>
+                        <p>No modules available</p>
+                    </div>
+                `;
+                return;
+            }
+
+            modules.forEach((module, index) => {
+                const moduleItem = document.createElement('div');
+                moduleItem.className = 'module-item';
+                if (index === currentModuleIndex) moduleItem.classList.add('active');
+                
+                moduleItem.innerHTML = `
+                    <div class="module-info">
+                        <span class="module-number">Module ${index + 1}</span>
+                        <h4>${module.title}</h4>
+                    </div>
+                    ${module.completedBy?.includes(user.userId) ? 
+                        '<span class="completion-badge"><i class="fas fa-check"></i></span>' : ''}
+                `;
+                
+                moduleItem.addEventListener('click', () => loadModule(index));
+                modulesList.appendChild(moduleItem);
+            });
+        }
+
+        function loadModule(index) {
+            currentModuleIndex = index;
+            const module = modules[index];
+            
+            // Update active module in sidebar
+            document.querySelectorAll('.module-item').forEach((item, i) => {
+                item.classList.toggle('active', i === index);
+            });
+
+            // Update content header with completion status
+            const isCompleted = module.completedBy?.includes(user.userId);
+            document.getElementById('contentHeader').innerHTML = `
+                <h3>${module.title}</h3>
+                <button class="action-btn" onclick="window.markModuleComplete('${module._id}')" ${isCompleted ? 'disabled' : ''}>
+                    <i class="fas ${isCompleted ? 'fa-check' : 'fa-check-circle'}"></i>
+                    ${isCompleted ? 'Completed' : 'Mark as Complete'}
+                </button>
+            `;
+
+            // Update content body
+            document.getElementById('contentBody').innerHTML = `
+                <div class="module-content">
+                    ${module.content}
+                </div>
+            `;
+
+            // Render resources if any
+            if (module.resources?.length) {
+                renderResources(module.resources);
+            }
+        }
+
+        function renderResources(resources) {
+            if (!resources || !resources.length) return;
+
+            const resourcesSection = document.querySelector('.resources-section');
+            resourcesSection.innerHTML = '<h4>Resources</h4>'; // Reset the section
+            
+            const resourcesList = document.createElement('div');
+            resourcesList.className = 'resources-list';
+
+            resources.forEach(resource => {
+                const resourceItem = document.createElement('div');
+                resourceItem.className = 'resource-item';
+                
+                const resourceBtn = document.createElement('button');
+                resourceBtn.className = 'resource-btn';
+                resourceBtn.innerHTML = `
+                    <i class="fas fa-external-link-alt"></i>
+                    Open ${resource.type}
+                `;
+                resourceBtn.addEventListener('click', () => {
+                    if (resource.type === 'video') {
+                        window.openVideoModal(resource.url, resource.description, resource._id || resource.url);
+                    } else {
+                        window.open(resource.url, '_blank');
+                    }
+                });
+
+                resourceItem.innerHTML = `
+                    <div class="resource-info">
+                        <i class="${getResourceIcon(resource.type)}"></i>
+                        <span>${resource.description}</span>
+                    </div>
+                `;
+                resourceItem.appendChild(resourceBtn);
+                resourcesList.appendChild(resourceItem);
+            });
+
+            resourcesSection.appendChild(resourcesList);
+        }
+
+        function getResourceIcon(type) {
+            const icons = {
+                'video': 'fas fa-video',
+                'document': 'fas fa-file-alt',
+                '3d': 'fas fa-cube',
+                'link': 'fas fa-link'
+            };
+            return icons[type.toLowerCase()] || 'fas fa-file';
+        }
+
+        function updateProgress(progress) {
+            document.getElementById('courseProgress').style.width = `${progress}%`;
+            document.getElementById('progressText').textContent = `${Math.round(progress)}% Complete`;
+        }
+
+        function showError(message, type = 'error') {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = `message ${type}`;
+            errorDiv.textContent = message;
+            errorDiv.style.cssText = `
+                background: ${type === 'success' ? 'rgba(76,175,80,0.2)' : 'rgba(255,71,87,0.2)'};
+                color: white;
+                padding: 1rem;
+                border-radius: 10px;
+                margin: 1rem 0;
+                text-align: center;
+            `;
+            
+            setTimeout(() => errorDiv.remove(), 5000);
+            document.querySelector('.dashboard-container').insertBefore(errorDiv, document.querySelector('.content-container'));
+        }
+
+        // Make functions available globally
+        window.markModuleComplete = markModuleComplete;
+        window.loadModule = loadModule;
+
+        // Initial load
+        loadCourseData();
+    </script>
+    <script src="https://js.puter.com/v2/"></script>
+    <script src="../js/chat.js"></script>
+</body>
+</html>
