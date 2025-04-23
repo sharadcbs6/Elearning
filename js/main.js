@@ -1,4 +1,3 @@
-import * as THREE from 'three';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -529,8 +528,8 @@ class ThreeScene {
                     uniform float time;
                     varying vec2 vUv;
                     void main() {
-                        float line = abs(sin(vUv.y * 10.0 + time));
-                        vec3 color = vec3(0.0, 1.0, 0.8) * line;
+                        float line = abs(sin(vUv.y * 20.0 + time));
+                        vec3 color = vec3(0.5, 0.8, 1.0) * line;
                         gl_FragColor = vec4(color, 0.3);
                     }
                 `,
