@@ -15,13 +15,13 @@ router.get('/teacher/:teacherId', auth, async (req, res) => {
     }
     const filter = { teacherId: req.params.teacherId };
     if (req.query.courseId) filter.courseId = req.query.courseId;
-    console.log('[REPORT ROUTE DEBUG] Filter:', filter);
+    // console.log('[REPORT ROUTE DEBUG] Filter:', filter);
     const reports = await Report.find(filter)
       .populate('studentId', 'profile email')
       .populate('courseId', 'title')
       .populate('assessmentId', 'title')
       .sort({ submittedAt: -1 });
-    console.log(`[REPORT ROUTE DEBUG] Returned ${reports.length} reports`);
+    // console.log(`[REPORT ROUTE DEBUG] Returned ${reports.length} reports`);
     res.json(reports);
   } catch (err) {
     console.error('[REPORT ROUTE DEBUG] Error:', err);

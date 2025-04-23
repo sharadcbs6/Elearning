@@ -318,7 +318,7 @@ router.get('/:courseId/modules/:moduleId/notes', auth, async (req, res) => {
         const { resourceId } = req.query;
         const userId = req.user.userId || req.user._id;
 
-        console.log('Getting notes:', { courseId, moduleId, userId, resourceId });
+        //         console.log('Getting notes:', { courseId, moduleId, userId, resourceId });
 
         // Find the course and check if user is enrolled
         const course = await Course.findById(courseId);
@@ -348,7 +348,7 @@ router.get('/:courseId/modules/:moduleId/notes', auth, async (req, res) => {
             notes = notes.filter(note => note.resourceId === resourceId);
         }
 
-        console.log('Found notes:', notes);
+        //         console.log('Found notes:', notes);
         res.json(notes);
     } catch (error) {
         console.error('Error getting notes:', error);
@@ -363,7 +363,7 @@ router.post('/:courseId/modules/:moduleId/notes', auth, async (req, res) => {
         const { content, resourceId } = req.body;
         const userId = req.user.userId || req.user._id;
 
-        console.log('Saving note:', { courseId, moduleId, userId, content, resourceId });
+        //         console.log('Saving note:', { courseId, moduleId, userId, content, resourceId });
 
         // Validate input
         if (!content) {
