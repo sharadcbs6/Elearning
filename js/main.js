@@ -1,5 +1,4 @@
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+// gsap and ScrollTrigger are loaded globally from CDN
 
 gsap.registerPlugin(ScrollTrigger);
 
