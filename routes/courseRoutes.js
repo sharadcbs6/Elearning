@@ -71,7 +71,6 @@ router.get('/:id', auth, async (req, res) => {
         
         res.json(course);
     } catch (error) {
-        console.error('Error fetching course:', error);
         res.status(500).json({ message: 'Error fetching course details' });
     }
 });
@@ -90,7 +89,6 @@ router.put('/:id', auth, async (req, res) => {
         }
         res.json(course);
     } catch (error) {
-        console.error('Error updating course:', error);
         res.status(500).json({ message: 'Error updating course' });
     }
 });
@@ -107,7 +105,6 @@ router.delete('/:id', auth, async (req, res) => {
         }
         res.json({ message: 'Course deleted successfully' });
     } catch (error) {
-        console.error('Error deleting course:', error);
         res.status(500).json({ message: 'Error deleting course' });
     }
 });
@@ -162,7 +159,6 @@ router.post('/:id/unenroll', auth, async (req, res) => {
         await course.save();
         res.json({ message: 'Successfully unenrolled from course' });
     } catch (error) {
-        console.error('Error unenrolling from course:', error);
         res.status(500).json({ message: 'Error unenrolling from course' });
     }
 });
@@ -189,7 +185,6 @@ router.post('/:id/modules', auth, async (req, res) => {
         await course.save();
         res.status(201).json(course);
     } catch (error) {
-        console.error('Error adding module:', error);
         res.status(500).json({ message: 'Error adding module' });
     }
 });
@@ -219,7 +214,6 @@ router.put('/:courseId/modules/:moduleId', auth, async (req, res) => {
         await course.save();
         res.json(course);
     } catch (error) {
-        console.error('Error updating module:', error);
         res.status(500).json({ message: 'Error updating module' });
     }
 });
@@ -240,7 +234,6 @@ router.delete('/:courseId/modules/:moduleId', auth, async (req, res) => {
         await course.save();
         res.json({ message: 'Module deleted successfully' });
     } catch (error) {
-        console.error('Error deleting module:', error);
         res.status(500).json({ message: 'Error deleting module' });
     }
 });
@@ -276,7 +269,6 @@ router.post('/:courseId/modules/:moduleId/complete', auth, async (req, res) => {
 
         res.json({ message: 'Module marked as complete' });
     } catch (error) {
-        console.error('Error marking module complete:', error);
         res.status(500).json({ message: 'Error updating module progress' });
     }
 });
@@ -306,7 +298,6 @@ router.get('/:courseId/progress', auth, async (req, res) => {
             progress: totalModules ? (completedModules / totalModules) * 100 : 0
         });
     } catch (error) {
-        console.error('Error getting progress:', error);
         res.status(500).json({ message: 'Error fetching progress' });
     }
 });
@@ -317,8 +308,6 @@ router.get('/:courseId/modules/:moduleId/notes', auth, async (req, res) => {
         const { courseId, moduleId } = req.params;
         const { resourceId } = req.query;
         const userId = req.user.userId || req.user._id;
-
-        //         console.log('Getting notes:', { courseId, moduleId, userId, resourceId });
 
         // Find the course and check if user is enrolled
         const course = await Course.findById(courseId);
@@ -348,10 +337,8 @@ router.get('/:courseId/modules/:moduleId/notes', auth, async (req, res) => {
             notes = notes.filter(note => note.resourceId === resourceId);
         }
 
-        //         console.log('Found notes:', notes);
         res.json(notes);
     } catch (error) {
-        console.error('Error getting notes:', error);
         res.status(500).json({ message: 'Error getting notes', error: error.message });
     }
 });
@@ -362,8 +349,6 @@ router.post('/:courseId/modules/:moduleId/notes', auth, async (req, res) => {
         const { courseId, moduleId } = req.params;
         const { content, resourceId } = req.body;
         const userId = req.user.userId || req.user._id;
-
-        //         console.log('Saving note:', { courseId, moduleId, userId, content, resourceId });
 
         // Validate input
         if (!content) {
@@ -416,7 +401,6 @@ router.post('/:courseId/modules/:moduleId/notes', auth, async (req, res) => {
         // Return the newly created note
         res.status(201).json(note);
     } catch (error) {
-        console.error('Error saving note:', error);
         res.status(500).json({ message: 'Error saving note', error: error.message });
     }
 });
@@ -446,7 +430,6 @@ router.patch('/:courseId/modules/:moduleId/notes/:noteId', auth, async (req, res
         await course.save();
         res.json(note);
     } catch (error) {
-        console.error('Error editing note:', error);
         res.status(500).json({ message: 'Error editing note', error: error.message });
     }
 });
@@ -470,7 +453,6 @@ router.delete('/:courseId/modules/:moduleId/notes/:noteId', auth, async (req, re
         await course.save();
         res.json({ message: 'Note deleted' });
     } catch (error) {
-        console.error('Error deleting note:', error);
         res.status(500).json({ message: 'Error deleting note', error: error.message });
     }
 });
@@ -491,7 +473,6 @@ router.delete('/remove-dummy-course', auth, async (req, res) => {
 
         res.json({ message: 'Dummy course removed successfully', removedCourse: dummyCourse });
     } catch (error) {
-        console.error('Error removing dummy course:', error);
         res.status(500).json({ message: 'Error removing dummy course' });
     }
 });

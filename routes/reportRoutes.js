@@ -10,21 +10,17 @@ router.get('/teacher/:teacherId', auth, async (req, res) => {
   try {
     // Ensure string comparison for userId
     if (req.user.role !== 'teacher' || req.user.userId.toString() !== req.params.teacherId.toString()) {
-      console.warn('[REPORT ROUTE DEBUG] Forbidden: userId', req.user.userId, 'param', req.params.teacherId);
       return res.status(403).json({ message: 'Forbidden' });
     }
     const filter = { teacherId: req.params.teacherId };
     if (req.query.courseId) filter.courseId = req.query.courseId;
-    // console.log('[REPORT ROUTE DEBUG] Filter:', filter);
     const reports = await Report.find(filter)
       .populate('studentId', 'profile email')
       .populate('courseId', 'title')
       .populate('assessmentId', 'title')
       .sort({ submittedAt: -1 });
-    // console.log(`[REPORT ROUTE DEBUG] Returned ${reports.length} reports`);
     res.json(reports);
   } catch (err) {
-    console.error('[REPORT ROUTE DEBUG] Error:', err);
     res.status(500).json({ message: err.message });
   }
 });

@@ -1,4 +1,3 @@
-
 const express = require('express');
 const router = express.Router();
 const Assessment = require('../models/Assessment');
@@ -10,7 +9,6 @@ const auth = require('../middleware/auth');
 // Create a new assessment (teacher only)
 router.post('/', auth, async (req, res) => {
     try {
-        // console.log('req.user in assessment creation:', req.user); // DEBUG LOG
         if (req.user.role !== 'teacher') {
             return res.status(403).json({ message: 'Only teachers can create assessments' });
         }
@@ -72,7 +70,6 @@ router.get('/:id', auth, async (req, res) => {
 // Submit an assessment (student only)
 router.post('/:id/submit', auth, async (req, res) => {
     try {
-        // console.log('[DEBUG] Received submission req.body:', JSON.stringify(req.body, null, 2));
         if (req.user.role !== 'student') {
             return res.status(403).json({ message: 'Only students can submit assessments' });
         }
@@ -87,14 +84,12 @@ router.post('/:id/submit', auth, async (req, res) => {
         const wrongQuestions = [];
         const answers = req.body.answers.map(answer => {
             const question = assessment.questions.id(answer.questionId);
-            // console.log('[DEBUG] Processing question:', question);
             let isCorrect = false;
             let pointsEarned = 0;
             let yourAnswer = '';
             let correctAnswer = '';
 
             if (question.type === 'multiple-choice' || question.type === 'true-false') {
-                // console.log('[DEBUG] answer.selectedOptions:', answer.selectedOptions);
                 const correctOptions = question.options.filter(opt => opt.isCorrect).map(opt => opt._id.toString());
                 isCorrect = Array.isArray(answer.selectedOptions) &&
                     correctOptions.length === answer.selectedOptions.length &&
@@ -156,18 +151,6 @@ router.post('/:id/submit', auth, async (req, res) => {
                 }
             });
         }
-        // Debug logging for report creation
-        // console.log('[REPORT DEBUG] Creating report:', {
-        //     studentId: req.user.userId,
-        //     teacherId: course ? course.teacher : null,
-        //     courseId: course ? course._id : null,
-        //     assessmentId: assessment._id,
-        //     assessmentTitle: assessment.title,
-        //     score: submission.totalScore,
-        //     percentage: submission.percentageScore,
-        //     modulesDone,
-        //     modulesLeft
-        // });
         // Save report for teacher dashboard
         if (course) {
             try {
@@ -183,7 +166,6 @@ router.post('/:id/submit', auth, async (req, res) => {
                     modulesLeft,
                     submittedAt: new Date()
                 });
-                // console.log('[REPORT DEBUG] Report created successfully');
             } catch (err) {
                 console.error('[REPORT DEBUG] Error creating report:', err);
             }

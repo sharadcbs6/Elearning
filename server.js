@@ -26,8 +26,8 @@ app.get('/api/test', (req, res) => {
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI)
-  .then(() => {/* Connected to MongoDB */})
-  .catch((err) => {/* MongoDB connection error: */ err});
+  .then(() => {})
+  .catch((err) => { err });
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -48,5 +48,4 @@ if (process.env.NODE_ENV === 'production') {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  // console.log(`Server running on port ${PORT}`);
 });
