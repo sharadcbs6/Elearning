@@ -71,6 +71,7 @@ router.get('/:id', auth, async (req, res) => {
         
         res.json(course);
     } catch (error) {
+       
         res.status(500).json({ message: 'Error fetching course details' });
     }
 });

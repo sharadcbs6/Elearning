@@ -592,7 +592,7 @@
                 await fetchAvailableCourses();
                 showSuccess('Successfully unenrolled from course');
             } catch (error) {
-                console.error('Error:', error);
+               
                 showError(error.message);
             }
         };
@@ -616,7 +616,7 @@
                 await fetchAvailableCourses();
                 showSuccess('Successfully enrolled in course!');
             } catch (error) {
-                console.error('Error:', error);
+               
                 showError(error.message);
             }
         };
@@ -692,7 +692,7 @@
 
                 renderEnrolledCourses(coursesWithProgress);
             } catch (error) {
-                console.error('Error:', error);
+                
                 showError(error.message);
             }
         }
@@ -772,7 +772,6 @@
                 btn.onclick = () => showAssessmentModal(assessments);
                 assessmentLinksContainer.appendChild(btn);
             } catch (error) {
-                console.error(`[ERROR] Failed to load assessments for course ${courseId}:`, error);
                 const assessmentLinksContainer = document.getElementById(`assessment-links-${courseId}`);
                 if (assessmentLinksContainer) {
                     assessmentLinksContainer.innerHTML = `<div class="error-message">Failed to load assessments.</div>`;
@@ -819,7 +818,7 @@
                 const courses = await response.json();
                 renderAvailableCourses(courses);
             } catch (error) {
-                console.error('Error:', error);
+             
                 container.innerHTML = `
                     <div class="error-message">
                         <i class="fas fa-exclamation-circle"></i>

@@ -183,6 +183,25 @@
     transform: rotate(180deg);
 }
 
+.chat-widget .chat-header .chat-close-btn {
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    color: #333;
+    cursor: pointer;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    z-index: 10;
+    display: none;
+}
+
+@media (max-width: 600px) {
+    .chat-widget .chat-header .chat-close-btn {
+        display: block;
+    }
+}
+
 .chat-widget .chat-messages {
     flex: 1;
     overflow-y: auto;

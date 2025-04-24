@@ -159,4 +159,14 @@
 
       // Initial state
       chatContainer.style.display = 'none';
+
+      document.addEventListener('DOMContentLoaded', function () {
+          var closeBtn = document.getElementById('chat-close-btn');
+          var chatContainer = document.querySelector('.chat-widget');
+          if (closeBtn && chatContainer) {
+              closeBtn.addEventListener('click', function () {
+                  chatContainer.style.display = 'none';
+              });
+          }
+      });
   })();

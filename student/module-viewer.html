@@ -195,21 +195,19 @@
                 // Return original URL if no conversion needed
                 return url;
             } catch (error) {
-                console.error('Error processing video URL:', error);
+              
                 return url;
             }
         }
 
         window.openVideoModal = function(url, title, resourceId) {
             try {
-                console.log('Opening video modal:', { url, title });
+               
                 const modal = document.getElementById('videoModal');
                 const videoPlayer = document.getElementById('videoPlayer');
                 const modalTitle = document.getElementById('modalTitle');
                 const videoUrl = handleVideoUrl(url);
 
-                console.log('Processed video URL:', videoUrl);
-                
                 modalTitle.textContent = title || 'Video';
                 videoPlayer.innerHTML = `
                     <iframe 
@@ -247,7 +245,7 @@
                     }
                 });
             } catch (error) {
-                console.error('Error opening video modal:', error);
+               
                 alert('Failed to open video. Please try again.');
             }
         };
@@ -300,7 +298,6 @@
                 
                 showMessage('Note saved successfully!', 'success');
             } catch (error) {
-                console.error('Error saving note:', error);
                 showMessage(error.message || 'Failed to save note. Please try again.', 'error');
             }
         };
@@ -324,7 +321,14 @@
                 minute: '2-digit'
             });
             
-            const isOwner = (note.userId === user.id || note.userId === user.userId);
+            // DEBUG: Log note and user to help diagnose edit button visibility
+           
+            const isOwner = (
+                note.userId == user.id ||
+                note.userId == user.userId ||
+                note.userId == user._id
+            );
+            
             noteElement.innerHTML = `
                 <div class="note-content">${note.content}</div>
                 <div class="note-meta">
@@ -439,7 +443,7 @@
                     .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
                     .forEach(addNoteToList);
             } catch (error) {
-                console.error('Error loading notes:', error);
+              
                 notesList.innerHTML = `
                     <div class="error-state">
                         <i class="fas fa-exclamation-circle"></i>
@@ -476,20 +480,20 @@
                 // Return original URL if no conversion needed
                 return url;
             } catch (error) {
-                console.error('Error processing video URL:', error);
+
                 return url;
             }
         }
 
         window.openVideoModal = function(url, title, resourceId) {
             try {
-                console.log('Opening video modal:', { url, title });
+              
                 const modal = document.getElementById('videoModal');
                 const videoPlayer = document.getElementById('videoPlayer');
                 const modalTitle = document.getElementById('modalTitle');
                 const videoUrl = handleVideoUrl(url);
 
-                console.log('Processed video URL:', videoUrl);
+             
                 
                 modalTitle.textContent = title || 'Video';
                 videoPlayer.innerHTML = `
@@ -528,7 +532,7 @@
                     }
                 });
             } catch (error) {
-                console.error('Error opening video modal:', error);
+               
                 alert('Failed to open video. Please try again.');
             }
         };
@@ -608,7 +612,7 @@
                     `;
                 }
             } catch (error) {
-                console.error('Error loading course:', error);
+              
                 showError(error.message || 'Failed to load course data');
                 document.getElementById('contentBody').innerHTML = `
                     <div class="empty-state">
@@ -660,7 +664,7 @@
                 // Show success message
                 showMessage('Module marked as complete!', 'success');
             } catch (error) {
-                console.error('Error marking module complete:', error);
+               
                 showMessage(error.message || 'Failed to mark module as complete', 'error');
             }
         }
