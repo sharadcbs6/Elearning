@@ -30,7 +30,7 @@ npm install
 
 4. Run development server:
 ```bash
-npm start
+npm run dev
 ```
 
 5. Build for production:
