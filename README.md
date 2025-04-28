@@ -18,18 +18,22 @@ An immersive e-learning platform built with Three.js and GSAP animations.
 - Vite for development and building
 
 ## Setup
-
-1. Install dependencies:
+1.Remove Existing dependencies:
+```bash
+rm -rf node_modules package-lock.json
+```
+2. Install dependencies:
 ```bash
 npm install
 ```
+3.Start MongoDB locally (make sure MongoDB is installed and running)
 
-2. Run development server:
+4. Run development server:
 ```bash
-npm run dev
+npm start
 ```
 
-3. Build for production:
+5. Build for production:
 ```bash
 npm run build
 ```
